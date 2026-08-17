@@ -9,13 +9,13 @@ from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 
 logging.basicConfig(level=logging.INFO)
 
-# 🔑 Токени Telegram ва бот
+# 🔑 Токен ва номи бот
 TELEGRAM_TOKEN = "8949334224:AAEip9Lbdxd2YFwS_rNNNls2vxaN6qkvfDc"
 BOT_USERNAME = "@Filmyob_bot"
 
-# 🔑 Gemini API Key аз Railway Variables хонда мешавад
+# 📢 Канали шумо ва API Key (аз Railway Variables хонда мешавад)
+CHANNEL_USERNAME = "@filmyob_channel"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
-CHANNEL_USERNAME = os.environ.get("CHANNEL_USERNAME", "@канали_шумо")
 
 client = genai.Client(api_key=GEMINI_API_KEY)
 bot = Bot(token=TELEGRAM_TOKEN)
@@ -24,25 +24,51 @@ dp = Dispatcher()
 TEMP_DIR = "temp_videos"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
+# Функсияи тафтиши аъзошавӣ ба канал
 async def check_sub(user_id: int) -> bool:
-    if CHANNEL_USERNAME == "@канали_шумо":
-        return True
     try:
         member = await bot.get_chat_member(chat_id=CHANNEL_USERNAME, user_id=user_id)
         return member.status in ["creator", "administrator", "member"]
-    except:
-        return True
+    except Exception as e:
+        logging.error(f"Хатогии тафтиши аъзошавӣ: {e}")
+        return True  # Агар хатогӣ диҳад, роҳ медиҳад то бот накафад
 
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message):
+    is_subbed = await check_sub(message.from_user.id)
+    if not is_subbed:
+        sub_kb = InlineKeyboardMarkup(inline_keyboard=[
+            [InlineKeyboardButton(text="📢 Аъзо шудан ба канал", url=f"https://t.me/filmyob_channel")],
+            [InlineKeyboardButton(text="✅ Аъзо шудам", callback_data="check_subscription")]
+        ])
+        await message.answer(
+            f"Салом {message.from_user.first_name}! 🎬\n\n"
+            f"⚠️ Барои истифодабарии бот, аввал ба канали мо аъзо шавед!",
+            reply_markup=sub_kb
+        )
+        return
+
     await message.answer(
         f"Салом {message.from_user.first_name}! 🎬\n\n"
         f"Ман боти {BOT_USERNAME} ҳастам.\n"
         f"Парчаи видеоиро фиристед (аз 2 то 20 сония), то номи филмро пайдо кунам!"
     )
 
+@dp.callback_query(F.data == "check_subscription")
+async def check_sub_callback(call: types.CallbackQuery):
+    if await check_sub(call.from_user.id):
+        await call.message.delete()
+        await call.message.answer("✅ **Раҳмат! Аъзошавӣ тасдиқ шуд.**\n\nИнҷо парчаи видеоиро фиристед!")
+    else:
+        await call.answer("❌ Шумо ҳанӯз ба канал аъзо нашудаед!", show_alert=True)
+
 @dp.message(F.video | F.video_note)
 async def handle_video(message: types.Message):
+    is_subbed = await check_sub(message.from_user.id)
+    if not is_subbed:
+        await start_cmd(message)
+        return
+
     status_msg = await message.answer("📥 Видео қабул шуд. Таҳлил рафта истодааст...")
     
     video_obj = message.video or message.video_note
