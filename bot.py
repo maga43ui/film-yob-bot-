@@ -31,7 +31,7 @@ async def check_sub(user_id: int) -> bool:
         return member.status in ["creator", "administrator", "member"]
     except Exception as e:
         logging.error(f"Хатогии тафтиши аъзошавӣ: {e}")
-        return True  # Агар хатогӣ диҳад, роҳ медиҳад то бот накафад
+        return True
 
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message):
@@ -84,8 +84,9 @@ async def handle_video(message: types.Message):
             await asyncio.sleep(2)
             uploaded_file = client.files.get(name=uploaded_file.name)
 
+        # 🚀 Модели навшуда: gemini-3.6-flash
         response = client.models.generate_content(
-            model='gemini-2.5-flash',
+            model='gemini-3.6-flash',
             contents=[uploaded_file, "Determine the movie title from this video. Write ONLY the title in Russian."]
         )
         movie_name = response.text.strip()
