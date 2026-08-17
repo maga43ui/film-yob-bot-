@@ -31,7 +31,7 @@ async def check_sub(user_id: int) -> bool:
 
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message):
-    await message.answer("Салом! Парчаи видеоро фиристед, то номи филмро гӯям.")
+    await message.answer("Салом! Пoрчаи видеоро фиристед, то номи филмро гӯям.")
 
 @dp.message(F.video | F.video_note)
 async def handle_video(message: types.Message):
