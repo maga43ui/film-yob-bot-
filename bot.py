@@ -64,6 +64,25 @@ async def check_sub(user_id: int) -> bool:
     except:
         return True
 
+# ─── ХАБАРДОР КАРДАНИ КОРБАРОН ВАҚТИ РӮШАН ШУДАНИ БОТ ───
+async def notify_users_on_restart():
+    data = load_data()
+    start_kb = InlineKeyboardMarkup(inline_keyboard=[
+        [InlineKeyboardButton(text="🔄 Оғоз кардан (Start)", url=f"https://t.me/{BOT_USERNAME}?start=restart")]
+    ])
+    
+    restart_text = (
+        "🔄 **Бот навсозӣ шуд!**\n\n"
+        "Лутфан барои идомаи кор ва навсозии меню тугмаи зерро пахш кунед ё бугузоред: /start"
+    )
+    
+    for user_id in data.keys():
+        try:
+            await bot.send_message(chat_id=int(user_id), text=restart_text, reply_markup=start_kb, parse_mode="Markdown")
+            await asyncio.sleep(0.05)  # Барои он ки Бот аз тарафи Телеграм блок нашавад
+        except Exception:
+            pass  # Агар корбар ботро блок карда бошад, хатогиро сарфи назар мекунад
+
 # ─── 1. COMMAND /START ───
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message, command: CommandObject):
@@ -71,7 +90,7 @@ async def start_cmd(message: types.Message, command: CommandObject):
     get_user_data(user_id)
     
     referrer_id = command.args
-    if referrer_id and referrer_id != user_id:
+    if referrer_id and referrer_id != user_id and referrer_id != "restart":
         all_data = load_data()
         if referrer_id in all_data and user_id not in all_data[referrer_id]["referrals"]:
             all_data[referrer_id]["referrals"].append(user_id)
@@ -228,5 +247,10 @@ async def handle_video(message: types.Message):
 async def unhandled_messages(message: types.Message):
     await message.answer("ℹ️ Лутфан танҳо **пачаи видео** (кино)-ро фиристед ё тугмаҳои менюро истифода баред.")
 
+# ─── ИҶРОҲОИ АВВАЛИН ВА СТАРТ ───
+async def main():
+    dp.startup.register(notify_users_on_restart)
+    await dp.start_polling(bot)
+
 if __name__ == "__main__":
-    asyncio.run(dp.start_polling(bot))
+    asyncio.run(main())
