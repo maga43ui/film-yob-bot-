@@ -17,7 +17,6 @@ except ImportError:
     print("✅ 'yt-dlp' бомуваффақият насб шуд!")
 
 from google import genai
-from google.genai import types as genai_types
 from aiogram import Bot, Dispatcher, types, F
 from aiogram.filters import CommandStart, CommandObject
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton, ReplyKeyboardMarkup, KeyboardButton
@@ -39,18 +38,18 @@ TEMP_DIR = "temp_videos"
 DATA_FILE = "users_data.json"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# ─── 🌐 МАТНҲО ───
+# ─── 🌐 МАТНҲО БЕ РАМЗҲОИ ** ───
 TEXTS = {
     "tg": {
         "welcome": (
             "Салом! 🎬 Ман боти Filmyob мебошам.\n\n"
             "🛠 Ман чӣ кор карда метавонам?\n"
-            "Ман ба шумо барои ёфтани номи пӯрраи филмҳо (аз ҷумла сериалҳои тоҷикӣ ба монанди Хусури ман ва лоиҳаҳои Zamonavi Media) кумак мекунам!\n\n"
+            "Ман ба шумо барои ёфтани номи пӯрраи филмҳо (аз ҷумла филмҳо ва сериалҳои тоҷикӣ) кумак мекунам!\n\n"
             "Шумо метавонед ба ман:\n"
-            "1️⃣ Порчаи видео (файли видео)-ро фиристед.\n"
-            "2️⃣ Линки порчаи видеоро аз Instagram, YouTube, TikTok фиристед.\n\n"
+            "1️⃣ Парчаи видео (файли видео)-ро фиристед.\n"
+            "2️⃣ Линки парчаи видеоро аз Instagram, YouTube, TikTok фиристед.\n\n"
             "Ман ба шумо маълумоти пурра, рейтинг, давомнокӣ ва линки тамошоро медиҳам! 🚀\n\n"
-            "👇 Порчаи видео ё линки онро фиристед!"
+            "👇 Парчаи видео ё линки онро фиристед!"
         ),
         "btn_profile": "📊 Ҳисоби ман",
         "btn_rules": "📜 Қоидаҳо ва Линки рефералӣ",
@@ -64,63 +63,78 @@ TEXTS = {
         "sub_fail": "❌ Шумо ҳанӯз аъзо нашудаед!",
         "video_big": "⚠️ Ҳаҷми видео аз 19 МБ зиёд аст!",
         "limit_end": "🛑 Лимити имрӯза тамом шуд! (3/3)\n\n🎁 Барои +1 видео, дӯстонро даъват кунед:\n{ref_link}",
-        "processing": "📥 Видео қабул шуд. Таҳлили бӯҳронӣ ва ҷустуҷӯи бӯҳронии филм/сериал рафта истодааст...",
-        "downloading_link": "🔗 Линки видео қабул шуд, дар ҳоли боргирии тезкор...",
-        "not_a_movie": "❌ Ин филм ё сериали шинохташуда нест!\n\nВидеои фиристодашуда парча аз филм ё сериали бадеӣ нест.",
-        "not_in_server": "😔 Ман дар серверам ин филмро надорам, узри зиёд кушиш кунед дигар филмро истифода баред.",
-        "watch_tg": "🇹🇯 Тамошо дар YouTube / Google",
-        "watch_ru": "🇷🇺 Тамошо дар Yandex",
+        "processing": "📥 Видео қабул шуд. Таҳлил ва ҷустуҷӯи филм рафта истодааст...",
+        "downloading_link": "🔗 Линки видео қабул шуд, дар ҳоли боргирӣ...",
+        "not_a_movie": "❌ Ин филм нест!\n\nВидеои фиристодашуда парча аз филм ё сериали бадеӣ нест.",
+        "watch_tg": "🇹🇯 Тамошо (Забони Тоҷикӣ)",
+        "watch_ru": "🇷🇺 Тамошо (Забони Русӣ)",
         "profile": "👤 Профили шумо: {name}{admin_note}\n🆔 ID: {user_id}\n📅 Лимити имрӯза: {daily} аз 3\n🎁 Бонусҳо: {bonus}\n👥 Дӯстон: {refs}",
         "rules_ref": "📜 ҚОИДАҲО:\n1️⃣ Видео ё линки Instagram/YouTube-ро фиристед.\n2️⃣ Лимити рӯзона: 3 видео.\n\n🔗 Линки рефералӣ:\n{ref_link}",
         "link_error": "❌ Хатогӣ ҳангоми боркашии линк. Лутфан линки дурустро фиристед."
     },
     "ru": {
-        "welcome": "Привет! 🎬 Я бот Filmyob.",
+        "welcome": (
+            "Привет! 🎬 Я бот Filmyob.\n\n"
+            "🛠 Что я умею?\n"
+            "Я помогу найти полное название фильма (включая таджикские фильмы и сериалы)!\n\n"
+            "Вы можете отправить мне:\n"
+            "1️⃣ Отрывок видео (файл).\n"
+            "2️⃣ Ссылку на видео из Instagram, YouTube, TikTok.\n\n"
+            "Я предоставлю подробное описание, рейтинг, длительность и ссылки для просмотра! 🚀\n\n"
+            "👇 Отправьте видео или ссылку!"
+        ),
         "btn_profile": "📊 Мой профиль",
         "btn_rules": "📜 Правила и Рефералка",
         "btn_lang": "🌐 Забон / Язык / Language",
-        "select_lang": "🌐 Пожалуйста, выберите язык:",
+        "select_lang": "🌐 Пожалуйста, выберите язык / Лутфан забонро интихоб кунед:",
         "lang_set": "✅ Язык выбран!",
         "sub_req": "⚠️ Для использования бота подпишитесь на наш канал!",
         "btn_sub": "📢 Подписаться на канал",
         "btn_check_sub": "✅ Я подписался",
-        "sub_ok": "✅ Подтверждено!",
+        "sub_ok": "✅ Подтверждено! Нажмите /start.",
         "sub_fail": "❌ Вы еще не подписались!",
         "video_big": "⚠️ Размер видео превышает 19 МБ!",
-        "limit_end": "🛑 Дневной лимит исчерпан!",
-        "processing": "📥 Идет быстрый анализ фильма/сериала...",
-        "downloading_link": "🔗 Скачиваем видео...",
-        "not_a_movie": "❌ Это не фильм и не сериал!",
-        "not_in_server": "😔 У меня на сервере нет этого фильма, извините, попробуйте использовать другой фильм.",
-        "watch_tg": "🇹🇯 Смотреть в YouTube / Google",
-        "watch_ru": "🇷🇺 Смотреть в Yandex",
-        "profile": "👤 Ваш профиль: {name}{admin_note}\n🆔 ID: {user_id}\n📅 Лимит: {daily} из 3\n🎁 Бонусы: {bonus}\n👥 Друзья: {refs}",
-        "rules_ref": "📜 ПРАВИЛА:\n1️⃣ Отправьте видео или ссылку.\n\n🔗 Ссылка:\n{ref_link}",
-        "link_error": "❌ Ошибка при скачивании."
+        "limit_end": "🛑 Дневной лимит исчерпан! (3/3)\n\n🎁 Для +1 видео приглашайте друзей:\n{ref_link}",
+        "processing": "📥 Видео получено. Идет анализ и поиск фильма...",
+        "downloading_link": "🔗 Ссылка получена, скачиваем видео...",
+        "not_a_movie": "❌ Это не фильм!\n\nОтправленное видео не является отрывком из фильма или сериала.",
+        "watch_tg": "🇹🇯 Смотреть (Таджикский язык)",
+        "watch_ru": "🇷🇺 Смотреть (Русский язык)",
+        "profile": "👤 Ваш профиль: {name}{admin_note}\n🆔 ID: {user_id}\n📅 Лимит на сегодня: {daily} из 3\n🎁 Бонусы: {bonus}\n👥 Друзья: {refs}",
+        "rules_ref": "📜 ПРАВИЛА:\n1️⃣ Отправьте видео или ссылку Instagram/YouTube.\n2️⃣ Лимит: 3 видео в день.\n\n🔗 Реферальная ссылка:\n{ref_link}",
+        "link_error": "❌ Ошибка при скачивании по ссылке. Проверьте ссылку."
     },
     "en": {
-        "welcome": "Hello! 🎬 I am Filmyob bot.",
+        "welcome": (
+            "Hello! 🎬 I am Filmyob bot.\n\n"
+            "🛠 What can I do?\n"
+            "I will help you find full movie titles (including Tajik movies and series)!\n\n"
+            "You can send me:\n"
+            "1️⃣ A video clip file.\n"
+            "2️⃣ A video link from Instagram, YouTube, TikTok.\n\n"
+            "I will give you movie info, rating, duration, and watch links! 🚀\n\n"
+            "👇 Send a video clip or link below!"
+        ),
         "btn_profile": "📊 My Profile",
         "btn_rules": "📜 Rules & Referral",
-        "btn_lang": "🌐 Language",
-        "select_lang": "🌐 Select language:",
+        "btn_lang": "🌐 Забон / Язык / Language",
+        "select_lang": "🌐 Please select your language:",
         "lang_set": "✅ Language set!",
-        "sub_req": "⚠️ Please subscribe to channel!",
-        "btn_sub": "📢 Subscribe",
-        "btn_check_sub": "✅ Check",
-        "sub_ok": "✅ Verified!",
-        "sub_fail": "❌ Not subscribed!",
+        "sub_req": "⚠️ Please subscribe to our channel first!",
+        "btn_sub": "📢 Subscribe to channel",
+        "btn_check_sub": "✅ I subscribed",
+        "sub_ok": "✅ Verified! Press /start.",
+        "sub_fail": "❌ You haven't subscribed yet!",
         "video_big": "⚠️ Video exceeds 19 MB!",
-        "limit_end": "🛑 Limit reached!",
-        "processing": "📥 Analyzing video...",
-        "downloading_link": "🔗 Downloading...",
-        "not_a_movie": "❌ Not a movie!",
-        "not_in_server": "😔 I do not have this movie on my server, very sorry please try using another movie.",
-        "watch_tg": "🇹🇯 Watch on YouTube / Google",
-        "watch_ru": "🇷🇺 Watch on Yandex",
-        "profile": "👤 Profile: {name}\n🆔 ID: {user_id}\n📅 Limit: {daily}\n🎁 Bonus: {bonus}\n👥 Refs: {refs}",
-        "rules_ref": "📜 RULES:\nSend video/link.\n\nLink:\n{ref_link}",
-        "link_error": "❌ Download failed."
+        "limit_end": "🛑 Daily limit reached! (3/3)\n\n🎁 Invite friends for +1 bonus:\n{ref_link}",
+        "processing": "📥 Video received. Analyzing and searching movie...",
+        "downloading_link": "🔗 Link received, downloading video...",
+        "not_a_movie": "❌ This is not a movie!\n\nThe sent video is not a clip from a movie or TV series.",
+        "watch_tg": "🇹🇯 Watch in Tajik",
+        "watch_ru": "🇷🇺 Watch in Russian",
+        "profile": "👤 Your Profile: {name}{admin_note}\n🆔 ID: {user_id}\n📅 Today limit: {daily} of 3\n🎁 Bonuses: {bonus}\n👥 Friends: {refs}",
+        "rules_ref": "📜 RULES:\n1️⃣ Send a video or Instagram/YouTube link.\n2️⃣ Limit: 3 videos daily.\n\n🔗 Referral Link:\n{ref_link}",
+        "link_error": "❌ Failed to download video from link."
     }
 }
 
@@ -160,6 +174,7 @@ def get_lang(user_id: str) -> str:
 def check_and_use_limit(user_id: str) -> bool:
     if user_id == ADMIN_ID:
         return True
+    
     all_data = load_data()
     user = all_data.get(user_id)
     if not user:
@@ -173,6 +188,7 @@ def check_and_use_limit(user_id: str) -> bool:
         user["bonus_videos"] -= 1
         save_data(all_data)
         return True
+    
     return False
 
 def get_main_keyboard(lang: str):
@@ -192,10 +208,10 @@ async def check_sub(user_id: int) -> bool:
     except:
         return True
 
-# ─── БОРГИРИИ ТЕЗКОРИ ВИДЕО АЗ ЛИНК ───
+# ─── БОРГИРИИ ВИДЕО АЗ ЛИНК ───
 async def download_video_from_url(url: str, output_path: str) -> bool:
     ydl_opts = {
-        'format': 'b[filesize<15M]/worst[ext=mp4]/w',
+        'format': 'mp4[filesize<20M]/best[filesize<20M]/best',
         'outtmpl': output_path,
         'quiet': True,
         'no_warnings': True,
@@ -208,29 +224,6 @@ async def download_video_from_url(url: str, output_path: str) -> bool:
     except Exception as e:
         logging.error(f"Download error: {e}")
         return False
-
-# ─── ИФТОДАБАРИИ НОМИ ДУРУСТИ МОДЕЛ ВА КӮШИШИ ДУБОРА ───
-async def generate_with_retry(uploaded_file, prompt):
-    # Номҳои расмии моделҳо дар SDK-и нав
-    models_to_try = ['gemini-2.0-flash-001', 'gemini-2.0-flash', 'gemini-1.5-flash-latest']
-    
-    for model_name in models_to_try:
-        try:
-            return client.models.generate_content(
-                model=model_name,
-                contents=[uploaded_file, prompt],
-                config=genai_types.GenerateContentConfig(
-                    temperature=0.0
-                )
-            )
-        except Exception as e:
-            if "404" in str(e):
-                continue  # Агар ин модел ёфт нашуд, модели баъдиро месанҷад
-            elif "503" in str(e) or "UNAVAILABLE" in str(e):
-                await asyncio.sleep(2)
-            else:
-                raise e
-    raise Exception("Ҳеҷ як аз моделҳои Gemini дар API ёфт нашуд.")
 
 # ─── COMMAND /START ───
 @dp.message(CommandStart())
@@ -268,17 +261,21 @@ async def start_cmd(message: types.Message, command: CommandObject):
 
     await message.answer(TEXTS[lang]["welcome"], reply_markup=get_main_keyboard(lang))
 
+# ─── ИНТИХОБИ АВВАЛИНИ ЗАБОН ───
 @dp.callback_query(F.data.startswith("init_lang_"))
 async def init_lang_callback(call: types.CallbackQuery):
     selected_lang = call.data.split("_")[-1]
     user_id = str(call.from_user.id)
+    
     all_data = load_data()
     if user_id in all_data:
         all_data[user_id]["lang"] = selected_lang
         save_data(all_data)
+
     await call.message.delete()
     await call.message.answer(TEXTS[selected_lang]["welcome"], reply_markup=get_main_keyboard(selected_lang))
 
+# ─── ИВАЗ КАРДАНИ ЗАБОН ───
 @dp.message(F.text.contains("Забон") | F.text.contains("Язык") | F.text.contains("Language"))
 async def lang_menu_cmd(message: types.Message):
     lang = get_lang(str(message.from_user.id))
@@ -293,19 +290,24 @@ async def lang_menu_cmd(message: types.Message):
 async def set_lang_callback(call: types.CallbackQuery):
     selected_lang = call.data.split("_")[-1]
     user_id = str(call.from_user.id)
+    
     all_data = load_data()
     all_data[user_id]["lang"] = selected_lang
     save_data(all_data)
+        
     await call.message.delete()
     await call.message.answer(TEXTS[selected_lang]["lang_set"], reply_markup=get_main_keyboard(selected_lang))
 
+# ─── МЕНЮҲОИ ДИГАР ───
 @dp.message(F.text.in_({"📊 Ҳисоби ман", "📊 Мой профиль", "📊 My Profile"}))
 async def profile_cmd(message: types.Message):
     user_id = str(message.from_user.id)
     u_data = get_user_data(user_id)[user_id]
     lang = u_data.get("lang", "tg")
+    
     daily_left = max(0, 3 - u_data["daily_count"])
     admin_note = " (👑 Админ)" if user_id == ADMIN_ID else ""
+    
     text = TEXTS[lang]["profile"].format(
         name=message.from_user.first_name, admin_note=admin_note,
         user_id=user_id, daily=daily_left, bonus=u_data["bonus_videos"], refs=len(u_data["referrals"])
@@ -319,7 +321,7 @@ async def info_cmd(message: types.Message):
     ref_link = f"https://t.me/{BOT_USERNAME}?start={user_id}"
     await message.answer(TEXTS[lang]["rules_ref"].format(ref_link=ref_link))
 
-# ─── КОРКАРДИ ВИДЕО ВА ТАҲЛИЛИ 100% ДАҚИҚ (БЕ ТАҲМИН) ───
+# ─── КОРКАРДИ ВИДЕО ВА ТАҲЛИЛИ ФИЛМ ───
 async def process_video_file(video_path: str, message: types.Message, status_msg: types.Message):
     user_id = str(message.from_user.id)
     lang = get_lang(user_id)
@@ -327,26 +329,20 @@ async def process_video_file(video_path: str, message: types.Message, status_msg
     try:
         uploaded_file = client.files.upload(file=video_path)
         while uploaded_file.state.name == "PROCESSING":
-            await asyncio.sleep(1)
+            await asyncio.sleep(2)
             uploaded_file = client.files.get(name=uploaded_file.name)
 
         prompt = (
-            f"You are an absolute factual AI expert in global and Tajik movies/TV series. "
-            f"Analyze this video clip carefully.\n\n"
-            f"CRITICAL STRICT RULES:\n"
-            f"1. DO NOT GUESS OR HALLUCINATE AT ALL. NO ASSUMPTIONS.\n"
-            f"2. You must be at least 90%-100% confident based on exact visual, facial, or scene match.\n"
-            f"3. Check for Tajik series like 'Khusuri man', 'Nomus', 'Mardon', 'Zanho', 'Dar justujui haqiqat', or content from Zamonavi Media, Futuwwat, and Tajik film studios.\n"
-            f"4. IF YOU DO NOT KNOW THE EXACT MOVIE OR ARE NOT 90% CONFIDENT, REPLY ONLY WITH THIS EXACT WORD: NOT_FOUND\n"
-            f"5. IF IT IS NOT A MOVIE OR DRAMA AT ALL, REPLY ONLY WITH THIS EXACT WORD: NOT_A_MOVIE\n\n"
-            f"If you are 90%-100% certain of the movie title, provide details in language code '{lang}':\n"
-            f"Do NOT use markdown bold formatting like asterisks (*).\n"
-            f"1. Full Title (e.g. Сериали 'Хусури ман')\n"
+            f"Analyze this video clip carefully. Check if it is from a feature movie, TV series, or Tajik cinema/series. "
+            f"Do not use markdown bold formatting like asterisks. "
+            f"If it is NOT a movie or drama series, reply EXACTLY: NOT_A_MOVIE. "
+            f"If it IS a movie or series, provide details in language code '{lang}':\n"
+            f"1. Full Movie Title\n"
             f"2. Duration\n"
             f"3. Rating\n"
             f"4. Main Actors\n"
-            f"5. Short plot summary\n\n"
-            f"Format response strictly as:\n"
+            f"5. Short description\n\n"
+            f"Format response like this without markdown symbols:\n"
             f"🎬 Номи филм: [Title]\n"
             f"⏱ Давомнокӣ: [Duration]\n"
             f"⭐ Рейтинг: [Rating]\n"
@@ -354,24 +350,23 @@ async def process_video_file(video_path: str, message: types.Message, status_msg
             f"📝 Мазмун: [Description]"
         )
 
-        response = await generate_with_retry(uploaded_file, prompt)
+        response = client.models.generate_content(
+            model='gemini-3.6-flash',
+            contents=[uploaded_file, prompt]
+        )
         result = response.text.strip().replace("*", "")
         client.files.delete(name=uploaded_file.name)
 
-        if "NOT_A_MOVIE" in result:
+        if "NOT_A_MOVIE" in result or len(result) < 5:
             await status_msg.edit_text(TEXTS[lang]["not_a_movie"])
-            return
-
-        if "NOT_FOUND" in result or len(result) < 5:
-            await status_msg.edit_text(TEXTS[lang]["not_in_server"])
             return
 
         first_line = result.split("\n")[0]
         clean_title = first_line.replace("🎬 Номи филм:", "").replace("🎬 Название фильма:", "").replace("🎬 Movie Title:", "").strip()
-        enc_title = urllib.parse.quote(clean_title if clean_title else "Хусури ман")
+        enc_title = urllib.parse.quote(clean_title if clean_title else "Movie")
 
-        watch_tg_url = f"https://www.youtube.com/results?search_query={enc_title}"
-        watch_ru_url = f"https://yandex.ru/search/?text=смотреть+сериал+{enc_title}+онлайн"
+        watch_tg_url = f"https://www.google.com/search?q={enc_title}+ба+забони+точики+تماша+филм"
+        watch_ru_url = f"https://yandex.ru/search/?text=смотреть+фильм+{enc_title}+онлайн+бесплатно"
 
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
             [InlineKeyboardButton(text=TEXTS[lang]["watch_tg"], url=watch_tg_url)],
@@ -382,7 +377,7 @@ async def process_video_file(video_path: str, message: types.Message, status_msg
     except Exception as e:
         await status_msg.edit_text(f"❌ Хатогӣ: {e}")
 
-# Қабули видеоҳо
+# Қабули файлҳои видео
 @dp.message(F.video | F.video_note)
 async def handle_video(message: types.Message):
     user_id = str(message.from_user.id)
