@@ -209,22 +209,28 @@ async def download_video_from_url(url: str, output_path: str) -> bool:
         logging.error(f"Download error: {e}")
         return False
 
-# ─── КӮШИШИ ДУБОРА БО ТАНЗИМОТИ ДАҚИҚӢ ВА TEMPERATURE=0.0 ───
+# ─── ИФТОДАБАРИИ НОМИ ДУРУСТИ МОДЕЛ ВА КӮШИШИ ДУБОРА ───
 async def generate_with_retry(uploaded_file, prompt):
-    for attempt in range(1, 4):
+    # Номҳои расмии моделҳо дар SDK-и нав
+    models_to_try = ['gemini-2.0-flash-001', 'gemini-2.0-flash', 'gemini-1.5-flash-latest']
+    
+    for model_name in models_to_try:
         try:
             return client.models.generate_content(
-                model='gemini-1.5-flash',  # Номи модел ба варианти дастрас ислоҳ шуд
+                model=model_name,
                 contents=[uploaded_file, prompt],
                 config=genai_types.GenerateContentConfig(
-                    temperature=0.0  # Тахминкунӣ пурра ба сифр расонида шуд
+                    temperature=0.0
                 )
             )
         except Exception as e:
-            if ("503" in str(e) or "UNAVAILABLE" in str(e)) and attempt < 3:
-                await asyncio.sleep(attempt * 2)
+            if "404" in str(e):
+                continue  # Агар ин модел ёфт нашуд, модели баъдиро месанҷад
+            elif "503" in str(e) or "UNAVAILABLE" in str(e):
+                await asyncio.sleep(2)
             else:
                 raise e
+    raise Exception("Ҳеҷ як аз моделҳои Gemini дар API ёфт нашуд.")
 
 # ─── COMMAND /START ───
 @dp.message(CommandStart())
@@ -324,7 +330,6 @@ async def process_video_file(video_path: str, message: types.Message, status_msg
             await asyncio.sleep(1)
             uploaded_file = client.files.get(name=uploaded_file.name)
 
-        # Промпти шадид ва касбӣ барои пешгирии пурраи тахмин
         prompt = (
             f"You are an absolute factual AI expert in global and Tajik movies/TV series. "
             f"Analyze this video clip carefully.\n\n"
