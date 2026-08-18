@@ -112,7 +112,7 @@ TEXTS = {
             "You can send me:\n"
             "1️⃣ A video clip file.\n"
             "2️⃣ A video link from Instagram, YouTube, TikTok.\n\n"
-            "I will give you movie info, rating, duration, and watch links! 🚀\n"
+            "I will give you movie info, rating, duration, and watch links! 🚀\n\n"
             "👇 Send a video clip or link below!"
         ),
         "btn_profile": "📊 My Profile",
@@ -154,14 +154,14 @@ def get_user_data(user_id: str):
     today = str(date.today())
     if user_id not in data:
         data[user_id] = {
-            "referrals": [],
-            "bonus_videos": 0,
-            "daily_date": today,
+            "referrals": [], 
+            "bonus_videos": 0, 
+            "daily_date": today, 
             "daily_count": 0,
             "lang": None
         }
     else:
-        if data[user_id].get("daily_date")!= today:
+        if data[user_id].get("daily_date") != today:
             data[user_id]["daily_date"] = today
             data[user_id]["daily_count"] = 0
     save_data(data)
@@ -225,7 +225,7 @@ async def download_video_from_url(url: str, output_path: str) -> bool:
         logging.error(f"Download error: {e}")
         return False
 
-# ─── КӮШИ ДУБОРА БАРОИ ПЕШГИРИИ ХАТОГИИ 503 ───
+# ─── КӮШИШИ ДУБОРА БАРОИ ПЕШГИРИИ ХАТОГИИ 503 ───
 async def generate_with_retry(uploaded_file, prompt, status_msg):
     for attempt in range(1, 4):
         try:
@@ -247,7 +247,7 @@ async def start_cmd(message: types.Message, command: CommandObject):
     u_data = all_data[user_id]
 
     ref_id = command.args
-    if ref_id and ref_id!= user_id and ref_id in all_data:
+    if ref_id and ref_id != user_id and ref_id in all_data:
         if user_id not in all_data[ref_id]["referrals"]:
             all_data[ref_id]["referrals"].append(user_id)
             if len(all_data[ref_id]["referrals"]) % 2 == 0:
@@ -335,7 +335,7 @@ async def info_cmd(message: types.Message):
     ref_link = f"https://t.me/{BOT_USERNAME}?start={user_id}"
     await message.answer(TEXTS[lang]["rules_ref"].format(ref_link=ref_link))
 
-# ─── КОРКАРДИ ВИДЕО ВА ТАҲЛИ ФИЛМ ───
+# ─── КОРКАРДИ ВИДЕО ВА ТАҲЛИЛИ ФИЛМ ───
 async def process_video_file(video_path: str, message: types.Message, status_msg: types.Message):
     user_id = str(message.from_user.id)
     lang = get_lang(user_id)
@@ -346,36 +346,31 @@ async def process_video_file(video_path: str, message: types.Message, status_msg
             await asyncio.sleep(2)
             uploaded_file = client.files.get(name=uploaded_file.name)
 
-        # ТАҒЙИРИ 1: ПРОМПТИ ЯНГИ БАРОИ 100% НАТИҶА
         prompt = (
-            f"You are a movie identification AI. Analyze this video clip. "
-            f"If it is NOT from a movie or TV series, reply with only this: NOT_A_MOVIE "
-            f"If it IS from a movie or TV series, you MUST reply ONLY with valid JSON. No other text. "
-            f"Use language: '{lang}'. "
-            f"JSON format: {{\"title\": \"Full Movie Title\", \"duration\": \"Duration\", \"rating\": \"Rating\", \"actors\": \"Main Actors\", \"description\": \"Short description\"}} "
-            f"Example: {{\"title\": \"Avengers\", \"duration\": \"2h 23m\", \"rating\": \"8.4/10\", \"actors\": \"Robert Downey Jr.\", \"description\": \"Superheroes save the world.\"}}"
+            f"Analyze this video clip carefully. Check if it is from a feature movie, TV series, or Tajik cinema/series. "
+            f"Do not use markdown bold formatting like asterisks. "
+            f"If it is NOT a movie or drama series, reply EXACTLY: NOT_A_MOVIE. "
+            f"If it IS a movie or series, provide details in language code '{lang}':\n"
+            f"1. Full Movie Title\n"
+            f"2. Duration\n"
+            f"3. Rating\n"
+            f"4. Main Actors\n"
+            f"5. Short description\n\n"
+            f"Format response like this without markdown symbols:\n"
+            f"🎬 Номи филм: [Title]\n"
+            f"⏱ Давомнокӣ: [Duration]\n"
+            f"⭐ Рейтинг: [Rating]\n"
+            f"🎭 Актёрон: [Actors]\n"
+            f"📝 Мазмун: [Description]"
         )
 
         response = await generate_with_retry(uploaded_file, prompt, status_msg)
         result = response.text.strip().replace("*", "")
         client.files.delete(name=uploaded_file.name)
 
-        if "NOT_A_MOVIE" in result:
+        if "NOT_A_MOVIE" in result or len(result) < 5:
             await status_msg.edit_text(TEXTS[lang]["not_a_movie"])
             return
-
-        # ТАҒЙИРИ 2: ПАРС КАРДАНИ JSON
-        try:
-            data = json.loads(result)
-            title = data.get("title", "Номаълум")
-            duration = data.get("duration", "-")
-            rating = data.get("rating", "-")
-            actors = data.get("actors", "-")
-            desc = data.get("description", "-")
-
-            result = f"🎬 Номи филм: {title}\n⏱ Давомнокӣ: {duration}\n⭐ Рейтинг: {rating}\n🎭 Актёрон: {actors}\n📝 Мазмун: {desc}"
-        except:
-            result = response.text.strip().replace("*", "")
 
         first_line = result.split("\n")[0]
         clean_title = first_line.replace("🎬 Номи филм:", "").replace("🎬 Название фильма:", "").replace("🎬 Movie Title:", "").strip()
