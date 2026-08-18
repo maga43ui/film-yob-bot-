@@ -63,7 +63,7 @@ async def handle_video(message: types.Message):
     user_id = str(message.from_user.id)
     
     # Агар админ набошад, лимитро тафтиш мекунем
-    if user_id != ADMIN_ID:
+    if user_id != 8419536226:
         # Лимит барои корбарони оддӣ (3 видео)
         all_data = get_user_data(user_id)
         u_data = all_data[user_id]
