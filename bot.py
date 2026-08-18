@@ -69,9 +69,26 @@ async def handle_video(message: types.Message):
         await start_cmd(message)
         return
 
+    video_obj = message.video or message.video_note
+
+    # ⚠️ Тафтиши ҳаҷми файл (19 MB)
+    MAX_SIZE = 19 * 1024 * 1024 
+    if video_obj.file_size and video_obj.file_size > MAX_SIZE:
+        try:
+            # 🗑️ Видеои корбарро фавран удалить мекунад:
+            await message.delete()
+        except Exception as e:
+            logging.error(f"Хатогии нест кардани паём: {e}")
+
+        # 📩 Огоҳинома мефиристад:
+        await message.answer(
+            "⚠️ **Видеои шумо пок карда шуд!**\n\n"
+            "Ҳаҷми видео аз 19 МБ калон аст. Лутфан, сифати видеоро кам кунед ё парчаи кӯтоҳтар фиристед."
+        )
+        return
+
     status_msg = await message.answer("📥 Видео қабул шуд. Таҳлил рафта истодааст...")
     
-    video_obj = message.video or message.video_note
     file_info = await bot.get_file(video_obj.file_id)
     video_path = os.path.join(TEMP_DIR, f"{message.from_user.id}.mp4")
     
@@ -84,7 +101,6 @@ async def handle_video(message: types.Message):
             await asyncio.sleep(2)
             uploaded_file = client.files.get(name=uploaded_file.name)
 
-        # ✅ Қавсҳо аниқ ва дуруст карда шуданд
         response = client.models.generate_content(
             model='gemini-3.6-flash',
             contents=[
