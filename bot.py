@@ -13,7 +13,7 @@ logging.basicConfig(level=logging.INFO)
 TELEGRAM_TOKEN = "8949334224:AAEip9Lbdxd2YFwS_rNNNls2vxaN6qkvfDc"
 BOT_USERNAME = "@Filmyob_bot"
 
-# 📢 Канали шумо ва API Key (аз Railway Variables хонда мешавад)
+# 📢 Канали шумо ва API Key
 CHANNEL_USERNAME = "@filmyob_channel"
 GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
 
@@ -84,15 +84,13 @@ async def handle_video(message: types.Message):
             await asyncio.sleep(2)
             uploaded_file = client.files.get(name=uploaded_file.name)
 
-        # 🚀 Модели навшуда: gemini-3.6-flash
+        # ✅ Қавсҳо аниқ ва дуруст карда шуданд
         response = client.models.generate_content(
-    model='gemini-3.6-flash',
-    contents=[
-        uploaded_file, 
-        "Determine the full feature length movie title (not TV series, show, or short clip) from this video. Write ONLY the official movie title in Russian. If it is a TV show or anime, still return only the main feature movie name."
-    ]
-)
-
+            model='gemini-3.6-flash',
+            contents=[
+                uploaded_file, 
+                "Determine the full feature length movie title (not TV series or short clip) from this video. Write ONLY the official movie title in Russian."
+            ]
         )
         movie_name = response.text.strip()
         
@@ -100,8 +98,8 @@ async def handle_video(message: types.Message):
         
         encoded_name = urllib.parse.quote(movie_name)
         keyboard = InlineKeyboardMarkup(inline_keyboard=[
-            [InlineKeyboardButton(text="▶️ Тамошо дар YouTube", url=f"https://www.youtube.com/results?search_query={encoded_name}+фильм")],
-            [InlineKeyboardButton(text="🌐 Ҷустуҷӯ дар Google", url=f"https://www.google.com/search?q=смотреть+{encoded_name}+онлайн")]
+            [InlineKeyboardButton(text="▶️ Тамошои филми пурра (YouTube)", url=f"https://www.youtube.com/results?search_query=фильм+{encoded_name}+смотреть+полностью")],
+            [InlineKeyboardButton(text="🌐 Ҷустуҷӯ дар Google", url=f"https://www.google.com/search?q=смотреть+фильм+{encoded_name}+в+хорошем+качестве")]
         ])
         
         await status_msg.edit_text(
