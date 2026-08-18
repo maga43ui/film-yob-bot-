@@ -225,6 +225,20 @@ async def download_video_from_url(url: str, output_path: str) -> bool:
         logging.error(f"Download error: {e}")
         return False
 
+# ─── КӮШИШИ ДУБОРА БАРОИ ПЕШГИРИИ ХАТОГИИ 503 ───
+async def generate_with_retry(uploaded_file, prompt, status_msg):
+    for attempt in range(1, 4):
+        try:
+            return client.models.generate_content(
+                model='gemini-3.6-flash',
+                contents=[uploaded_file, prompt]
+            )
+        except Exception as e:
+            if ("503" in str(e) or "UNAVAILABLE" in str(e)) and attempt < 3:
+                await asyncio.sleep(attempt * 3)
+            else:
+                raise e
+
 # ─── COMMAND /START ───
 @dp.message(CommandStart())
 async def start_cmd(message: types.Message, command: CommandObject):
@@ -350,10 +364,7 @@ async def process_video_file(video_path: str, message: types.Message, status_msg
             f"📝 Мазмун: [Description]"
         )
 
-        response = client.models.generate_content(
-            model='gemini-3.6-flash',
-            contents=[uploaded_file, prompt]
-        )
+        response = await generate_with_retry(uploaded_file, prompt, status_msg)
         result = response.text.strip().replace("*", "")
         client.files.delete(name=uploaded_file.name)
 
