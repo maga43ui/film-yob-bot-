@@ -26,6 +26,34 @@ TEMP_DIR = "temp_videos"
 DATA_FILE = "users_data.json"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
+# Луғати матнҳо барои 3 забон
+TEXTS = {
+    "tg": {
+        "welcome": "Салом! 🎬 Бот омодаи кор аст. Видеоро фиристед!",
+        "menu_profile": "📊 Ҳисоби ман",
+        "menu_lang": "🌐 Забон / Язык / Language",
+        "select_lang": "Лутфан забонро интихоб кунед:",
+        "lang_set": "✅ Забон ба Тоҷикӣ иваз карда шуд!",
+        "limit_end": "🛑 Лимити имрӯза тамом шуд!",
+    },
+    "ru": {
+        "welcome": "Привет! 🎬 Бот готов к работе. Отправьте видео!",
+        "menu_profile": "📊 Мой профиль",
+        "menu_lang": "🌐 Забон / Язык / Language",
+        "select_lang": "Пожалуйста, выберите язык:",
+        "lang_set": "✅ Язык изменен на Русский!",
+        "limit_end": "🛑 Дневной лимит исчерпан!",
+    },
+    "en": {
+        "welcome": "Hello! 🎬 Bot is ready. Send a video!",
+        "menu_profile": "📊 My Profile",
+        "menu_lang": "🌐 Забон / Язык / Language",
+        "select_lang": "Please select a language:",
+        "lang_set": "✅ Language changed to English!",
+        "limit_end": "🛑 Daily limit reached!",
+    }
+}
+
 # ─── ТУГМАҲОИ МЕНЮ ───
 main_keyboard = ReplyKeyboardMarkup(
     keyboard=[
