@@ -86,8 +86,13 @@ async def handle_video(message: types.Message):
 
         # 🚀 Модели навшуда: gemini-3.6-flash
         response = client.models.generate_content(
-            model='gemini-3.6-flash',
-            contents=[uploaded_file, "Determine the movie title from this video. Write ONLY the title in Russian."]
+    model='gemini-3.6-flash',
+    contents=[
+        uploaded_file, 
+        "Determine the full feature length movie title (not TV series, show, or short clip) from this video. Write ONLY the official movie title in Russian. If it is a TV show or anime, still return only the main feature movie name."
+    ]
+)
+
         )
         movie_name = response.text.strip()
         
