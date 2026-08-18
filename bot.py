@@ -112,7 +112,7 @@ TEXTS = {
             "You can send me:\n"
             "1️⃣ A video clip file.\n"
             "2️⃣ A video link from Instagram, YouTube, TikTok.\n\n"
-            "I will give you movie info, rating, duration, and watch links! 🚀\n\n"
+            "I will give you movie info, rating, duration, and watch links! 🚀\n"
             "👇 Send a video clip or link below!"
         ),
         "btn_profile": "📊 My Profile",
@@ -154,14 +154,14 @@ def get_user_data(user_id: str):
     today = str(date.today())
     if user_id not in data:
         data[user_id] = {
-            "referrals": [], 
-            "bonus_videos": 0, 
-            "daily_date": today, 
+            "referrals": [],
+            "bonus_videos": 0,
+            "daily_date": today,
             "daily_count": 0,
             "lang": None
         }
     else:
-        if data[user_id].get("daily_date") != today:
+        if data[user_id].get("daily_date")!= today:
             data[user_id]["daily_date"] = today
             data[user_id]["daily_count"] = 0
     save_data(data)
@@ -174,7 +174,7 @@ def get_lang(user_id: str) -> str:
 def check_and_use_limit(user_id: str) -> bool:
     if user_id == ADMIN_ID:
         return True
-    
+
     all_data = load_data()
     user = all_data.get(user_id)
     if not user:
@@ -188,7 +188,7 @@ def check_and_use_limit(user_id: str) -> bool:
         user["bonus_videos"] -= 1
         save_data(all_data)
         return True
-    
+
     return False
 
 def get_main_keyboard(lang: str):
@@ -225,12 +225,12 @@ async def download_video_from_url(url: str, output_path: str) -> bool:
         logging.error(f"Download error: {e}")
         return False
 
-# ─── КӮШИШИ ДУБОРА БАРОИ ПЕШГИРИИ ХАТОГИИ 503 ───
+# ─── КӮШИ ДУБОРА БАРОИ ПЕШГИРИИ ХАТОГИИ 503 ───
 async def generate_with_retry(uploaded_file, prompt, status_msg):
     for attempt in range(1, 4):
         try:
             return client.models.generate_content(
-                model='gemini-3.6-flash',
+                model='gemini-2.0-flash',
                 contents=[uploaded_file, prompt]
             )
         except Exception as e:
@@ -245,9 +245,9 @@ async def start_cmd(message: types.Message, command: CommandObject):
     user_id = str(message.from_user.id)
     all_data = get_user_data(user_id)
     u_data = all_data[user_id]
-    
+
     ref_id = command.args
-    if ref_id and ref_id != user_id and ref_id in all_data:
+    if ref_id and ref_id!= user_id and ref_id in all_data:
         if user_id not in all_data[ref_id]["referrals"]:
             all_data[ref_id]["referrals"].append(user_id)
             if len(all_data[ref_id]["referrals"]) % 2 == 0:
@@ -280,7 +280,7 @@ async def start_cmd(message: types.Message, command: CommandObject):
 async def init_lang_callback(call: types.CallbackQuery):
     selected_lang = call.data.split("_")[-1]
     user_id = str(call.from_user.id)
-    
+
     all_data = load_data()
     if user_id in all_data:
         all_data[user_id]["lang"] = selected_lang
@@ -304,11 +304,11 @@ async def lang_menu_cmd(message: types.Message):
 async def set_lang_callback(call: types.CallbackQuery):
     selected_lang = call.data.split("_")[-1]
     user_id = str(call.from_user.id)
-    
+
     all_data = load_data()
     all_data[user_id]["lang"] = selected_lang
     save_data(all_data)
-        
+
     await call.message.delete()
     await call.message.answer(TEXTS[selected_lang]["lang_set"], reply_markup=get_main_keyboard(selected_lang))
 
@@ -318,10 +318,10 @@ async def profile_cmd(message: types.Message):
     user_id = str(message.from_user.id)
     u_data = get_user_data(user_id)[user_id]
     lang = u_data.get("lang", "tg")
-    
+
     daily_left = max(0, 3 - u_data["daily_count"])
     admin_note = " (👑 Админ)" if user_id == ADMIN_ID else ""
-    
+
     text = TEXTS[lang]["profile"].format(
         name=message.from_user.first_name, admin_note=admin_note,
         user_id=user_id, daily=daily_left, bonus=u_data["bonus_videos"], refs=len(u_data["referrals"])
@@ -335,42 +335,47 @@ async def info_cmd(message: types.Message):
     ref_link = f"https://t.me/{BOT_USERNAME}?start={user_id}"
     await message.answer(TEXTS[lang]["rules_ref"].format(ref_link=ref_link))
 
-# ─── КОРКАРДИ ВИДЕО ВА ТАҲЛИЛИ ФИЛМ ───
+# ─── КОРКАРДИ ВИДЕО ВА ТАҲЛИ ФИЛМ ───
 async def process_video_file(video_path: str, message: types.Message, status_msg: types.Message):
     user_id = str(message.from_user.id)
     lang = get_lang(user_id)
-    
+
     try:
         uploaded_file = client.files.upload(file=video_path)
         while uploaded_file.state.name == "PROCESSING":
             await asyncio.sleep(2)
             uploaded_file = client.files.get(name=uploaded_file.name)
 
+        # ТАҒЙИРИ 1: ПРОМПТИ ЯНГИ БАРОИ 100% НАТИҶА
         prompt = (
-            f"Analyze this video clip carefully. Check if it is from a feature movie, TV series, or Tajik cinema/series. "
-            f"Do not use markdown bold formatting like asterisks. "
-            f"If it is NOT a movie or drama series, reply EXACTLY: NOT_A_MOVIE. "
-            f"If it IS a movie or series, provide details in language code '{lang}':\n"
-            f"1. Full Movie Title\n"
-            f"2. Duration\n"
-            f"3. Rating\n"
-            f"4. Main Actors\n"
-            f"5. Short description\n\n"
-            f"Format response like this without markdown symbols:\n"
-            f"🎬 Номи филм: [Title]\n"
-            f"⏱ Давомнокӣ: [Duration]\n"
-            f"⭐ Рейтинг: [Rating]\n"
-            f"🎭 Актёрон: [Actors]\n"
-            f"📝 Мазмун: [Description]"
+            f"You are a movie identification AI. Analyze this video clip. "
+            f"If it is NOT from a movie or TV series, reply with only this: NOT_A_MOVIE "
+            f"If it IS from a movie or TV series, you MUST reply ONLY with valid JSON. No other text. "
+            f"Use language: '{lang}'. "
+            f"JSON format: {{\"title\": \"Full Movie Title\", \"duration\": \"Duration\", \"rating\": \"Rating\", \"actors\": \"Main Actors\", \"description\": \"Short description\"}} "
+            f"Example: {{\"title\": \"Avengers\", \"duration\": \"2h 23m\", \"rating\": \"8.4/10\", \"actors\": \"Robert Downey Jr.\", \"description\": \"Superheroes save the world.\"}}"
         )
 
         response = await generate_with_retry(uploaded_file, prompt, status_msg)
         result = response.text.strip().replace("*", "")
         client.files.delete(name=uploaded_file.name)
 
-        if "NOT_A_MOVIE" in result or len(result) < 5:
+        if "NOT_A_MOVIE" in result:
             await status_msg.edit_text(TEXTS[lang]["not_a_movie"])
             return
+
+        # ТАҒЙИРИ 2: ПАРС КАРДАНИ JSON
+        try:
+            data = json.loads(result)
+            title = data.get("title", "Номаълум")
+            duration = data.get("duration", "-")
+            rating = data.get("rating", "-")
+            actors = data.get("actors", "-")
+            desc = data.get("description", "-")
+
+            result = f"🎬 Номи филм: {title}\n⏱ Давомнокӣ: {duration}\n⭐ Рейтинг: {rating}\n🎭 Актёрон: {actors}\n📝 Мазмун: {desc}"
+        except:
+            result = response.text.strip().replace("*", "")
 
         first_line = result.split("\n")[0]
         clean_title = first_line.replace("🎬 Номи филм:", "").replace("🎬 Название фильма:", "").replace("🎬 Movie Title:", "").strip()
