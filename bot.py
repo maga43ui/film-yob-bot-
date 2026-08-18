@@ -230,7 +230,7 @@ async def generate_with_retry(uploaded_file, prompt, status_msg):
     for attempt in range(1, 4):
         try:
             return client.models.generate_content(
-                model='gemini-3.6-flash-lite',
+                model='gemini-3.6-flash',
                 contents=[uploaded_file, prompt]
             )
         except Exception as e:
