@@ -214,7 +214,7 @@ async def generate_with_retry(uploaded_file, prompt):
     for attempt in range(1, 4):
         try:
             return client.models.generate_content(
-                model='gemini-2.5-flash',
+                model='gemini-1.5-flash',  # Номи модел ба варианти дастрас ислоҳ шуд
                 contents=[uploaded_file, prompt],
                 config=genai_types.GenerateContentConfig(
                     temperature=0.0  # Тахминкунӣ пурра ба сифр расонида шуд
