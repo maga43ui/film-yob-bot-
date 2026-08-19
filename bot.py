@@ -228,7 +228,7 @@ async def download_video_from_url(url: str, output_path: str) -> bool:
 # ─── ИФТОДАБАРИИ НОМИ ДУРУСТИ МОДЕЛ ВА КӮШИШИ ДУБОРА ───
 async def generate_with_retry(uploaded_file, prompt):
     # Номҳои расмии моделҳо дар SDK-и нав
-    models_to_try = ['gemini-2.0-flash-001', 'gemini-2.0-flash', 'gemini-1.5-flash-latest']
+    models_to_try = ['gemini-2.0-flash-001', 'gemini-2.0-flash', 'gemini-3.6-flash']
     
     for model_name in models_to_try:
         try:
