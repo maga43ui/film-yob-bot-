@@ -55,7 +55,7 @@ async def show_advert(user_id: int):
             ) as response:
                 response_text = await response.text()
                 
-                # МАТНИ ЛОГ БАРАОИ АДМИН
+                # МАТНИ ЛОГ БАРОИ АДМИН
                 admin_log_message = (
                     f"⚙️ **GramAds API Log**\n"
                     f"👤 User ID: `{user_id}`\n"
@@ -84,33 +84,30 @@ TEXTS = {
         "welcome": (
             "Салом! 🎬 Ман боти Filmyob мебошам.\n\n"
             "🛠 Ман чӣ кор карда метавонам?\n"
-            "Ман ба шумо барои ёфтани номи пӯрраи филмҳо (аз ҷумла сериалҳои тоҷикӣ ба монанди Хусури ман ва лоиҳаҳои Zamonavi Media) кумак мекунам!\n\n"
+            "Ман ба шумо барои ёфтани номи пураи филмҳо кумак мекунам!\n\n"
             "Шумо метавонед ба ман:\n"
-            "1️⃣ Порчаи видео (файли видео)-ро фиристед.\n"
+            "1️⃣ Порчаи видео фиристед.\n"
             "2️⃣ Линки порчаи видеоро аз Instagram, YouTube, TikTok фиристед.\n\n"
-            "Ман ба шумо маълумоти пурра, рейтинг, давомнокӣ ва линки тамошоро медиҳам! 🚀\n\n"
             "👇 Порчаи видео ё линки онро фиристед!"
         ),
         "btn_profile": "📊 Ҳисоби ман",
         "btn_rules": "📜 Қоидаҳо ва Линки рефералӣ",
         "btn_lang": "🌐 Забон / Язык / Language",
-        "select_lang": "🌐 Лутфан аввал забонро интихоб кунед / Пожалуйста, выберите язык:",
+        "select_lang": "🌐 Лутфан аввал забонро интихоб кунед:",
         "lang_set": "✅ Забон интихоб шуд!",
         "sub_req": "⚠️ Барои истифодаи бот, аввал ба канали мо аъзо шавед!",
         "btn_sub": "📢 Аъзо шудан ба канал",
         "btn_check_sub": "✅ Аъзо шудам",
-        "sub_ok": "✅ Тасдиқ шуд! /start-ро пахш кунед.",
-        "sub_fail": "❌ Шумо ҳанӯз аъзо нашудаед!",
         "video_big": "⚠️ Ҳаҷми видео аз 19 МБ зиёд аст!",
         "limit_end": "🛑 Лимити имрӯза тамом шуд! (3/3)\n\n🎁 Барои +1 видео, дӯстонро даъват кунед:\n{ref_link}",
-        "processing": "📥 Видео қабул шуд. Таҳлили бӯҳронӣ ва ҷустуҷӯи бӯҳронии филм/сериал рафта истодааст...",
-        "downloading_link": "🔗 Линки видео қабул шуд, дар ҳоли боргирии тезкор...",
-        "not_a_movie": "❌ Ин филм ё сериали шинохташуда нест!\n\nВидеои фиристодашуда парча аз филм ё сериали бадеӣ нест.",
-        "not_in_server": "😔 Ман дар серверам ин филмро надорам, узри зиёд кушиш кунед дигар филмро истифода баред.",
+        "processing": "📥 Видео қабул шуд. Таҳлил рафта истодааст...",
+        "downloading_link": "🔗 Линки видео қабул шуд, дар ҳоли боргирӣ...",
+        "not_a_movie": "❌ Ин филм ё сериали шинохташуда нест!",
+        "not_in_server": "😔 Ман дар серверам ин филмро надорам.",
         "watch_tg": "🇹🇯 Тамошо дар YouTube / Google",
         "watch_ru": "🇷🇺 Тамошо дар Yandex",
         "profile": "👤 Профили шумо: {name}{admin_note}\n🆔 ID: {user_id}\n📅 Лимити имрӯза: {daily} аз 3\n🎁 Бонусҳо: {bonus}\n👥 Дӯстон: {refs}",
-        "rules_ref": "📜 ҚОИДАҲО:\n1️⃣ Видео ё линки Instagram/YouTube-ро фиристед.\n2️⃣ Лимити рӯзона: 3 видео.\n\n🔗 Линки рефералӣ:\n{ref_link}",
+        "rules_ref": "📜 ҚОИДАҲО:\n1️⃣ Видео ё линк фиристед.\n2️⃣ Лимити рӯзона: 3 видео.\n\n🔗 Линки рефералӣ:\n{ref_link}",
         "link_error": "❌ Хатогӣ ҳангоми боркашии линк. Лутфан линки дурустро фиристед."
     },
     "ru": {
@@ -123,14 +120,12 @@ TEXTS = {
         "sub_req": "⚠️ Для использования бота подпишитесь на наш канал!",
         "btn_sub": "📢 Подписаться на канал",
         "btn_check_sub": "✅ Я подписался",
-        "sub_ok": "✅ Подтверждено!",
-        "sub_fail": "❌ Вы еще не подписались!",
         "video_big": "⚠️ Размер видео превышает 19 МБ!",
         "limit_end": "🛑 Дневной лимит исчерпан!",
-        "processing": "📥 Идет быстрый анализ фильма/сериала...",
+        "processing": "📥 Идет анализ фильма...",
         "downloading_link": "🔗 Скачиваем видео...",
         "not_a_movie": "❌ Это не фильм и не сериал!",
-        "not_in_server": "😔 У меня на сервере нет этого фильма, извините, попробуйте использовать другой фильм.",
+        "not_in_server": "😔 У меня на сервере нет этого фильма.",
         "watch_tg": "🇹🇯 Смотреть в YouTube / Google",
         "watch_ru": "🇷🇺 Смотреть в Yandex",
         "profile": "👤 Ваш профиль: {name}{admin_note}\n🆔 ID: {user_id}\n📅 Лимит: {daily} из 3\n🎁 Бонусы: {bonus}\n👥 Друзья: {refs}",
@@ -147,14 +142,12 @@ TEXTS = {
         "sub_req": "⚠️ Please subscribe to channel!",
         "btn_sub": "📢 Subscribe",
         "btn_check_sub": "✅ Check",
-        "sub_ok": "✅ Verified!",
-        "sub_fail": "❌ Not subscribed!",
         "video_big": "⚠️ Video exceeds 19 MB!",
         "limit_end": "🛑 Limit reached!",
         "processing": "📥 Analyzing video...",
         "downloading_link": "🔗 Downloading...",
         "not_a_movie": "❌ Not a movie!",
-        "not_in_server": "😔 I do not have this movie on my server, very sorry please try using another movie.",
+        "not_in_server": "😔 I do not have this movie on my server.",
         "watch_tg": "🇹🇯 Watch on YouTube / Google",
         "watch_ru": "🇷🇺 Watch on Yandex",
         "profile": "👤 Profile: {name}\n🆔 ID: {user_id}\n📅 Limit: {daily}\n🎁 Bonus: {bonus}\n👥 Refs: {refs}",
@@ -248,7 +241,7 @@ async def download_video_from_url(url: str, output_path: str) -> bool:
         logging.error(f"Download error: {e}")
         return False
 
-# ─── ИФТОДАБАРИИ ТАНҲО МОДЕЛИ GEMINI 3.6 ───
+# ─── МОДЕЛИ GEMINI 3.6 ───
 async def generate_with_retry(uploaded_file, prompt):
     try:
         return client.models.generate_content(
@@ -357,7 +350,7 @@ async def info_cmd(message: types.Message):
     ref_link = f"https://t.me/{BOT_USERNAME}?start={user_id}"
     await message.answer(TEXTS[lang]["rules_ref"].format(ref_link=ref_link))
 
-# ─── КОРКАРДИ ВИДЕО ВА ТАҲЛИЛИ 100% ДАҚИҚ (БЕ ТАҲМИН) ───
+# ─── КОРКАРДИ ВИДЕО ВА ТАҲЛИЛ ───
 async def process_video_file(video_path: str, message: types.Message, status_msg: types.Message):
     user_id = str(message.from_user.id)
     lang = get_lang(user_id)
@@ -379,7 +372,7 @@ async def process_video_file(video_path: str, message: types.Message, status_msg
             f"5. IF IT IS NOT A MOVIE OR DRAMA AT ALL, REPLY ONLY WITH THIS EXACT WORD: NOT_A_MOVIE\n\n"
             f"If you are 90%-100% certain of the movie title, provide details in language code '{lang}':\n"
             f"Do NOT use markdown bold formatting like asterisks (*).\n"
-            f"1. Full Title (e.g. Сериали 'Хусури ман')\n"
+            f"1. Full Title\n"
             f"2. Duration\n"
             f"3. Rating\n"
             f"4. Main Actors\n"
@@ -418,7 +411,7 @@ async def process_video_file(video_path: str, message: types.Message, status_msg
 
         await status_msg.edit_text(result, reply_markup=keyboard)
 
-        # 📢 Фиристодани реклама пас аз иҷрои кор
+        # 📢 Фиристодани реклама ба корбар пас аз гирифтани натиҷа
         await show_advert(int(user_id))
 
     except Exception as e:
@@ -446,9 +439,10 @@ async def handle_video(message: types.Message):
     await bot.download_file(file_info.file_path, destination=video_path)
 
     await process_video_file(video_path, message, status_msg)
-    if os.path.exists(video_path): os.remove(video_path)
+    if os.path.exists(video_path): 
+        os.remove(video_path)
 
-# Қабули линкҳо
+# Қабули линкҳо (Ислоҳшуда)
 @dp.message(F.text.startswith("http://") | F.text.startswith("https://"))
 async def handle_link(message: types.Message):
     user_id = str(message.from_user.id)
@@ -467,11 +461,13 @@ async def handle_link(message: types.Message):
         await status_msg.edit_text(TEXTS[lang]["link_error"])
         return
 
-    await status_msg.edit_text(TEXTS[lang]["processing"])
     await process_video_file(video_path, message, status_msg)
-    if os.path.exists(video_path): os.remove(video_path)
+    if os.path.exists(video_path): 
+        os.remove(video_path)
 
+# ─── ИШҒОЛ КАРДАНИ ПОЛИНГ ───
 async def main():
+    print("🚀 Бот бомуваффақият ба кор даромад...")
     await dp.start_polling(bot)
 
 if __name__ == "__main__":
