@@ -5,6 +5,7 @@ import asyncio
 import logging
 import subprocess
 import urllib.parse
+python -m venv venv
 from datetime import date
 import aiohttp
 
