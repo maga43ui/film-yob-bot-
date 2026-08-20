@@ -5,7 +5,6 @@ import asyncio
 import logging
 import subprocess
 import urllib.parse
-python -m venv venv
 from datetime import date
 import aiohttp
 
@@ -227,28 +226,27 @@ async def download_video_from_url(url: str, output_path: str) -> bool:
         logging.error(f"Download error: {e}")
         return False
 
-# ─── ИФТОДАБАРИИ НОМИ ДУРУСТИ МОДЕЛ ВА КӮШИШИ ДУБОРА ───
+# ─── ИФТОДАБАРИИ ТАНҲО МОДЕЛИ GEMINI 3.6 ───
 async def generate_with_retry(uploaded_file, prompt):
-    # Номҳои расмии моделҳо дар SDK-и нав
-    models_to_try = ['gemini-2.0-flash-001', 'gemini-2.0-flash', 'gemini-3.6-flash']
-    
-    for model_name in models_to_try:
-        try:
+    try:
+        return client.models.generate_content(
+            model='gemini-3.6-flash',
+            contents=[uploaded_file, prompt],
+            config=genai_types.GenerateContentConfig(
+                temperature=0.0
+            )
+        )
+    except Exception as e:
+        if "503" in str(e) or "UNAVAILABLE" in str(e):
+            await asyncio.sleep(2)
             return client.models.generate_content(
-                model=model_name,
+                model='gemini-3.6-flash',
                 contents=[uploaded_file, prompt],
                 config=genai_types.GenerateContentConfig(
                     temperature=0.0
                 )
             )
-        except Exception as e:
-            if "404" in str(e):
-                continue  # Агар ин модел ёфт нашуд, модели баъдиро месанҷад
-            elif "503" in str(e) or "UNAVAILABLE" in str(e):
-                await asyncio.sleep(2)
-            else:
-                raise e
-    raise Exception("Ҳеҷ як аз моделҳои Gemini дар API ёфт нашуд.")
+        raise e
 
 # ─── COMMAND /START ───
 @dp.message(CommandStart())
@@ -256,7 +254,7 @@ async def start_cmd(message: types.Message, command: CommandObject):
     user_id = str(message.from_user.id)
     all_data = get_user_data(user_id)
     u_data = all_data[user_id]
-    
+
     ref_id = command.args
     if ref_id and ref_id != user_id and ref_id in all_data:
         if user_id not in all_data[ref_id]["referrals"]:
@@ -341,7 +339,7 @@ async def info_cmd(message: types.Message):
 async def process_video_file(video_path: str, message: types.Message, status_msg: types.Message):
     user_id = str(message.from_user.id)
     lang = get_lang(user_id)
-    
+
     try:
         uploaded_file = client.files.upload(file=video_path)
         while uploaded_file.state.name == "PROCESSING":
@@ -397,7 +395,7 @@ async def process_video_file(video_path: str, message: types.Message, status_msg
         ])
 
         await status_msg.edit_text(result, reply_markup=keyboard)
-        
+
         # 📢 Фиристодани реклама пас аз иҷрои кор
         await show_advert(int(user_id))
 
