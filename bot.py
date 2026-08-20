@@ -47,13 +47,14 @@ async def show_advert(user_id: int):
         async with session.post(
             'https://api.gramads.net/ad/SendPost',
             headers={
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Nzk3NSIsImp0aSI6Ijk4ZGMwZjVlLTkzNmQtNGU1ZC1hNDJiLWU5YWM3NWI3MGQ4YyIsIm5hbWUiOiJGaWxtWW9iLmJvdCIsImJvdGlkIjoiMjIwNzMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjU3OTc1IiwibmJmIjoxNzg3MDM2MzkzLCJleHAiOjE3ODcyNDUxOTMsImlzcyI6IlN0dWdub3YiLCJhdWQiOiJVc2VycyJ9.m__-mPGC9DNCUOyvfk8LDY738xxtP8KG5Fi1Gc2bgac',
+                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Nzk3NSIsImp0aSI6ImRjMzcxNjYzLWIxZDAtNDExMS04YzcxLTE4YjEyYmRhNDAyYSIsIm5hbWUiOiJGaWxtWW9iLmJvdCIsImJvdGlkIjoiMjIwNzMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjU3OTc1IiwibmJmIjoxNzg3MjA2NzI5LCJleHAiOjE3ODc0MTU1MjksImlzcyI6IlN0dWdub3YiLCJhdWQiOiJVc2VycyJ9.MSACT2Z-ZIy6cqCNZcskdDSY2gpHZG8s64toWc01-2g',
                 'Content-Type': 'application/json',
             },
             json={'SendToChatId': user_id},
         ) as response:
             if not response.ok:
                 log.error('Gramads: %s' % str(await response.json()))
+
 
 # ─── 🌐 МАТНҲО ───
 TEXTS = {
