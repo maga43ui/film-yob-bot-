@@ -41,20 +41,42 @@ TEMP_DIR = "temp_videos"
 DATA_FILE = "users_data.json"
 os.makedirs(TEMP_DIR, exist_ok=True)
 
-# ─── GRAMADS РЕКЛАМА ───
+# ─── GRAMADS РЕКЛАМА (ЛОГҲО ТАНҲО БА АДМИН МЕРАВАНД) ───
 async def show_advert(user_id: int):
     async with aiohttp.ClientSession() as session:
-        async with session.post(
-            'https://api.gramads.net/ad/SendPost',
-            headers={
-                'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Nzk3NSIsImp0aSI6ImRjMzcxNjYzLWIxZDAtNDExMS04YzcxLTE4YjEyYmRhNDAyYSIsIm5hbWUiOiJGaWxtWW9iLmJvdCIsImJvdGlkIjoiMjIwNzMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjU3OTc1IiwibmJmIjoxNzg3MjA2NzI5LCJleHAiOjE3ODc0MTU1MjksImlzcyI6IlN0dWdub3YiLCJhdWQiOiJVc2VycyJ9.MSACT2Z-ZIy6cqCNZcskdDSY2gpHZG8s64toWc01-2g',
-                'Content-Type': 'application/json',
-            },
-            json={'SendToChatId': user_id},
-        ) as response:
-            if not response.ok:
-                log.error('Gramads: %s' % str(await response.json()))
-
+        try:
+            async with session.post(
+                'https://api.gramads.net/ad/SendPost',
+                headers={
+                    'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiI1Nzk3NSIsImp0aSI6ImRjMzcxNjYzLWIxZDAtNDExMS04YzcxLTE4YjEyYmRhNDAyYSIsIm5hbWUiOiJGaWxtWW9iLmJvdCIsImJvdGlkIjoiMjIwNzMiLCJodHRwOi8vc2NoZW1hcy54bWxzb2FwLm9yZy93cy8yMDA1LzA1L2lkZW50aXR5L2NsYWltcy9uYW1laWRlbnRpZmllciI6IjU3OTc1IiwibmJmIjoxNzg3MjA2NzI5LCJleHAiOjE3ODc0MTU1MjksImlzcyI6IlN0dWdub3YiLCJhdWQiOiJVc2VycyJ9.MSACT2Z-ZIy6cqCNZcskdDSY2gpHZG8s64toWc01-2g',
+                    'Content-Type': 'application/json',
+                },
+                json={'SendToChatId': str(user_id)},
+            ) as response:
+                response_text = await response.text()
+                
+                # МАТНИ ЛОГ БАРАОИ АДМИН
+                admin_log_message = (
+                    f"⚙️ **GramAds API Log**\n"
+                    f"👤 User ID: `{user_id}`\n"
+                    f"📊 Status Code: `{response.status}`\n"
+                    f"📄 Response Body:\n`{response_text}`"
+                )
+                
+                # Фиристодани лог мустақиман ба ЛИЧКАИ АДМИН
+                try:
+                    await bot.send_message(chat_id=ADMIN_ID, text=admin_log_message, parse_mode="Markdown")
+                except Exception as log_err:
+                    print(f"Хатогӣ ҳангоми фиристодани лог ба админ: {log_err}")
+                
+                if not response.ok:
+                    log.error(f'Gramads Error: {response_text}')
+        except Exception as e:
+            error_msg = f"⚠️ **GramAds Request Exception:**\n`{e}`"
+            try:
+                await bot.send_message(chat_id=ADMIN_ID, text=error_msg, parse_mode="Markdown")
+            except:
+                pass
 
 # ─── 🌐 МАТНҲО ───
 TEXTS = {
